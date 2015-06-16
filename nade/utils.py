@@ -101,24 +101,21 @@ def load_binarized_mnist():
             data = np.array([np.fromstring(l, dtype=np.float32, sep=" ") for l in open(filename)])
             data = data[:, :-1]  # Remove target
             data = (data > rng.rand(*data.shape)).astype('int8')
-            from ipdb import set_trace as dbg
-            dbg()
             return data
 
-
         trainset, validset, testset = parse_file(train_file), parse_file(valid_file), parse_file(test_file)
-        trainset_inputs, trainset_targets = trainset[:, :-1], trainset[:, [-1]]
-        validset_inputs, validset_targets = validset[:, :-1], validset[:, [-1]]
-        testset_inputs, testset_targets = testset[:, :-1], testset[:, [-1]]
+        trainset_inputs = trainset[:, :-1]
+        validset_inputs = validset[:, :-1]
+        testset_inputs = testset[:, :-1]
 
         np.savez(dataset_npy,
-                 trainset_inputs=trainset_inputs, trainset_targets=trainset_targets,
-                 validset_inputs=validset_inputs, validset_targets=validset_targets,
-                 testset_inputs=testset_inputs, testset_targets=testset_targets)
+                 trainset_inputs=trainset_inputs,
+                 validset_inputs=validset_inputs,
+                 testset_inputs=testset_inputs)
 
     data = np.load(dataset_npy)
-    trainset = Dataset(data['trainset_inputs'].astype(theano.config.floatX), data['trainset_targets'].astype(theano.config.floatX))
-    validset = Dataset(data['validset_inputs'].astype(theano.config.floatX), data['validset_targets'].astype(theano.config.floatX))
-    testset = Dataset(data['testset_inputs'].astype(theano.config.floatX), data['testset_targets'].astype(theano.config.floatX))
+    trainset = Dataset(data['trainset_inputs'].astype(theano.config.floatX), np.array([], dtype=theano.config.floatX))
+    validset = Dataset(data['validset_inputs'].astype(theano.config.floatX), np.array([], dtype=theano.config.floatX))
+    testset = Dataset(data['testset_inputs'].astype(theano.config.floatX), np.array([], dtype=theano.config.floatX))
 
     return trainset, validset, testset

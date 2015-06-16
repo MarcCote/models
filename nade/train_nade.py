@@ -21,11 +21,7 @@ def train_simple_perceptron():
 
     with Timer("Making loss symbolic graph"):
         def mean_nll(input, target):
-            probs = model.fprop(input)
-            nll = -T.log(probs)
-            indices = T.cast(target[:, 0], dtype="int32")  # Targets are floats.
-            selected_nll = nll[T.arange(target.shape[0]), indices]
-            return T.mean(selected_nll)
+            return model.mean_nll_loss(input, input)
 
     with Timer("Building optimizer"):
         optimizer = SGD(model, loss_fct=mean_nll, dataset=trainset, batch_size=100)
@@ -42,8 +38,8 @@ def train_simple_perceptron():
         trainer.append_task(tasks.PrintTrainingDuration())
 
         # Print mean/stderror of classification errors.
-        classif_error = tasks.ClassificationError(model.use, validset)
-        trainer.append_task(tasks.Print("Validset - Classif error: {0:.1%} ± {1:.1%}", classif_error.mean, classif_error.stderror))
+        #classif_error = tasks.ClassificationError(model.use, validset)
+        #trainer.append_task(tasks.Print("Validset - NLL: {0:.1%} ± {1:.1%}", classif_error.mean, classif_error.stderror))
 
     with Timer("Training"):
         trainer.train()
