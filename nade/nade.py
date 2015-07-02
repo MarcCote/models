@@ -113,26 +113,34 @@ class NADE(Model):
         pre_output = T.sum(h * self.V[:, None, :], axis=2) + self.bvis[:, None]
         output = T.nnet.sigmoid(pre_output)
 
+        # Change back the ordering
+        output = output.T[:, self.ordering_reverse]
+        pre_output = pre_output.T[:, self.ordering_reverse]
+
         if return_output_preactivation:
-            return output.T, pre_output.T
+            return output, pre_output
 
-        return output.T
+        return output
 
-    def get_nll(self, input, target):
-        target = target[:, self.ordering]  # Does not matter if ordering is the default one, indexing is fast.
-        output, pre_output = self.fprop(input, return_output_preactivation=True)
-        nll = T.sum(T.nnet.softplus(-target.T * pre_output.T + (1 - target.T) * pre_output.T), axis=0)
-        #nll = T.sum(T.nnet.softplus(-input.T * pre_output.T + (1 - input.T) * pre_output.T), axis=0)
-        #self.sum_diff = (input-target).sum(dtype="float64")
+    def get_model_output(self, inputs):
+        output, pre_output = self.fprop(inputs, return_output_preactivation=True)
+        return pre_output
 
-        # The following does not give the same results, numerical precision error?
-        #nll = T.sum(T.nnet.softplus(-target * pre_output + (1 - target) * pre_output), axis=1)
-        #nll = T.sum(T.nnet.softplus(-input * pre_output + (1 - input) * pre_output), axis=1)
-        return nll
+    # def get_nll(self, input, target):
+    #     target = target[:, self.ordering]  # Does not matter if ordering is the default one, indexing is fast.
+    #     output, pre_output = self.fprop(input, return_output_preactivation=True)
+    #     nll = T.sum(T.nnet.softplus(-target.T * pre_output.T + (1 - target.T) * pre_output.T), axis=0)
+    #     #nll = T.sum(T.nnet.softplus(-input.T * pre_output.T + (1 - input.T) * pre_output.T), axis=0)
+    #     #self.sum_diff = (input-target).sum(dtype="float64")
 
-    def mean_nll_loss(self, input, target):
-        nll = self.get_nll(input, target)
-        return nll.mean()
+    #     # The following does not give the same results, numerical precision error?
+    #     #nll = T.sum(T.nnet.softplus(-target * pre_output + (1 - target) * pre_output), axis=1)
+    #     #nll = T.sum(T.nnet.softplus(-input * pre_output + (1 - input) * pre_output), axis=1)
+    #     return nll
+
+    # def mean_nll_loss(self, input, target):
+    #     nll = self.get_nll(input, target)
+    #     return nll.mean()
 
     def build_sampling_function(self, seed=None):
         # Build sampling function
@@ -154,3 +162,25 @@ class NADE(Model):
 
             return samples
         return _sample
+
+
+# def BinaryCrossEntropyNADE(Loss):
+#     def __init__(self, dataset, nade):
+#         super(BinaryCrossEntropyNADE, self).__init__(dataset)
+#         self.nade = nade
+
+#     def _loss_function(self, model_output):
+#         target = target[:, self.ordering]  # Does not matter if ordering is the default one, indexing is fast.
+#         output, pre_output = self.nade.fprop(input, return_output_preactivation=True)
+#     #     nll = T.sum(T.nnet.softplus(-target.T * pre_output.T + (1 - target.T) * pre_output.T), axis=0)
+#     #     #nll = T.sum(T.nnet.softplus(-input.T * pre_output.T + (1 - input.T) * pre_output.T), axis=0)
+#     #     #self.sum_diff = (input-target).sum(dtype="float64")
+
+#     #     # The following does not give the same results, numerical precision error?
+#     #     #nll = T.sum(T.nnet.softplus(-target * pre_output + (1 - target) * pre_output), axis=1)
+#     #     #nll = T.sum(T.nnet.softplus(-input * pre_output + (1 - input) * pre_output), axis=1)
+#     #     return nll
+
+#     # def mean_nll_loss(self, input, target):
+#     #     nll = self.get_nll(input, target)
+#     #     return nll.mean()

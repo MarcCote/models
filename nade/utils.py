@@ -114,8 +114,8 @@ def load_binarized_mnist():
                  testset_inputs=testset_inputs)
 
     data = np.load(dataset_npy)
-    trainset = Dataset(data['trainset_inputs'].astype(theano.config.floatX), np.array([], dtype=theano.config.floatX))
-    validset = Dataset(data['validset_inputs'].astype(theano.config.floatX), np.array([], dtype=theano.config.floatX))
-    testset = Dataset(data['testset_inputs'].astype(theano.config.floatX), np.array([], dtype=theano.config.floatX))
+    trainset = Dataset(data['trainset_inputs'].astype(theano.config.floatX), name="trainset")
+    validset = Dataset(data['validset_inputs'].astype(theano.config.floatX), name="validset")
+    testset = Dataset(data['testset_inputs'].astype(theano.config.floatX), name="testset")
 
     return trainset, validset, testset
