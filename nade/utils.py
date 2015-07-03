@@ -104,14 +104,10 @@ def load_binarized_mnist():
             return data
 
         trainset, validset, testset = parse_file(train_file), parse_file(valid_file), parse_file(test_file)
-        trainset_inputs = trainset[:, :-1]
-        validset_inputs = validset[:, :-1]
-        testset_inputs = testset[:, :-1]
-
         np.savez(dataset_npy,
-                 trainset_inputs=trainset_inputs,
-                 validset_inputs=validset_inputs,
-                 testset_inputs=testset_inputs)
+                 trainset_inputs=trainset,
+                 validset_inputs=validset,
+                 testset_inputs=testset)
 
     data = np.load(dataset_npy)
     trainset = Dataset(data['trainset_inputs'].astype(theano.config.floatX), name="trainset")
