@@ -18,8 +18,12 @@ class Perceptron(Model):
         self.W = sharedX(value=np.zeros((input_size, output_size)), name='W', borrow=True)
         self.b = sharedX(value=np.zeros(output_size), name='b', borrow=True)
 
-    def initialize(self, weights_initializer=initer.UniformInitializer()):
+    def initialize(self, weights_initializer=initer.UniformInitializer(random_seed=1234)):
         weights_initializer(self.W)
+
+    @property
+    def updates(self):
+        return {}  # No updates.
 
     @property
     def parameters(self):
@@ -28,10 +32,10 @@ class Perceptron(Model):
     def get_model_output(self, X):
         preactivation = T.dot(X, self.W) + self.b
         probs = T.nnet.softmax(preactivation)
-        return probs, OrderedDict()
+        return probs
 
     def use(self, X):
-        probs, _ = self.get_model_output(X)
+        probs = self.get_model_output(X)
         return T.argmax(probs, axis=1, keepdims=True)
 
     def save(self, path):

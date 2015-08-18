@@ -27,14 +27,14 @@ def test_simple_perceptron():
 
     with Timer("Building optimizer"):
         optimizer = SGD(loss=NLL(model, trainset))
-        optimizer.append_update_rule(ConstantLearningRate(0.0001))
+        optimizer.append_update_rule(ConstantLearningRate(0.1))
 
     with Timer("Building trainer"):
         # Train for 10 epochs
         batch_scheduler = MiniBatchScheduler(trainset, 100)
 
         trainer = Trainer(optimizer, batch_scheduler)
-        trainer.append_task(stopping_criteria.MaxEpochStopping(10))
+        trainer.append_task(stopping_criteria.MaxEpochStopping(30))
 
         # Print time for one epoch
         trainer.append_task(tasks.PrintEpochDuration())
